@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.rxmedical</groupId>
-    <artifactId>UserService-9001</artifactId>
+    <artifactId>User-Service-9001</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>UserService-9001</name>
-    <description>UserService-9001</description>
+    <name>User-Service-9001</name>
+    <description>User-Service-9001</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.2</spring-cloud.version>
