@@ -3,6 +3,7 @@ package com.rxmedical.api.controller;
 import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.CSRFVerifyDTO;
 import com.rxmedical.api.model.dto.UserLoginDto;
+import com.rxmedical.api.model.dto.UserRegisterDto;
 import com.rxmedical.api.model.dto.UserUsageDto;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.UserService;
@@ -61,19 +62,19 @@ public class UserController {
 	}
 	
 	// 註冊
-//	@PostMapping("/user/register")
-//	public ResponseEntity<ApiResponse<Object>> registerUserInfo(@RequestBody UserRegisterDto userRegisterDto, HttpServletRequest request) throws NoSuchAlgorithmException, ParseException {
-//
-//		if (!jwtService.checkCSRFTokenJWT(userRegisterDto.token(), request)) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "CSRF驗證失敗", null));
-//		}
-//		Boolean registerSuccess = userService.registerUserInfo(userRegisterDto);
-//
-//		if (!registerSuccess) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "註冊失敗", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "註冊成功", null));
-//	}
+	@PostMapping("/user/register")
+	public ResponseEntity<ApiResponse<Object>> registerUserInfo(@RequestBody UserRegisterDto userRegisterDto, HttpServletRequest request) throws NoSuchAlgorithmException {
+		CSRFVerifyDTO dto = new CSRFVerifyDTO(userRegisterDto.token(), request.getHeader("Authorization"));
+		if (!jwtServiceClient.checkCSRFToken(dto).getSuccess()) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "CSRF驗證失敗", null));
+		}
+		Boolean registerSuccess = userService.registerUserInfo(userRegisterDto);
+
+		if (!registerSuccess) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "註冊失敗", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "註冊成功", null));
+	}
 	
 	// 取得個人資訊
 //	@PostMapping("/user/profile")

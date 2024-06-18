@@ -2,6 +2,7 @@ package com.rxmedical.api.service;
 
 import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.UserLoginDto;
+import com.rxmedical.api.model.dto.UserRegisterDto;
 import com.rxmedical.api.model.dto.UserUsageDto;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.repository.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Optional;
 
 @Service
@@ -76,36 +78,36 @@ public class UserService {
      * @param userRegisterDto 註冊人註冊資料
      * @return Boolean 註冊是否成功
      */
-//    public Boolean registerUserInfo(UserRegisterDto userRegisterDto) throws NoSuchAlgorithmException {
-//
-//		// Register User
-//    	User user = new User();
-//    	boolean result;
-//
-//    	// 轉成 PO
-//    	user.setEmpCode(userRegisterDto.empCode());
-//    	user.setName(userRegisterDto.name());
-//    	user.setDept(userRegisterDto.dept());
-//    	user.setTitle(userRegisterDto.title());
-//    	user.setEmail(userRegisterDto.email());
-//		user.setAuthLevel("register");
-//
-//		// ----- 密碼加密 --------
-//		// 產生鹽
-//		byte[] salt = new byte[16];
-//		SecureRandom secureRandom = new SecureRandom();
-//		secureRandom.nextBytes(salt);
-//		user.setSalt(KeyUtil.bytesToHex(salt));
-//		// hash 密碼
-//		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-//		messageDigest.update(salt);
-//		byte[] hashedPassword = messageDigest.digest(userRegisterDto.password().getBytes());
-//		user.setPassword(KeyUtil.bytesToHex(hashedPassword));
-//    	// 存檔
-//    	result = userRepository.save(user) != null;
-//
-//        return result;
-//    }
+    public Boolean registerUserInfo(UserRegisterDto userRegisterDto) throws NoSuchAlgorithmException {
+
+		// Register User
+    	User user = new User();
+    	boolean result;
+
+    	// 轉成 PO
+    	user.setEmpCode(userRegisterDto.empCode());
+    	user.setName(userRegisterDto.name());
+    	user.setDept(userRegisterDto.dept());
+    	user.setTitle(userRegisterDto.title());
+    	user.setEmail(userRegisterDto.email());
+		user.setAuthLevel("register");
+
+		// ----- 密碼加密 --------
+		// 產生鹽
+		byte[] salt = new byte[16];
+		SecureRandom secureRandom = new SecureRandom();
+		secureRandom.nextBytes(salt);
+		user.setSalt(KeyUtil.bytesToHex(salt));
+		// hash 密碼
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		messageDigest.update(salt);
+		byte[] hashedPassword = messageDigest.digest(userRegisterDto.password().getBytes());
+		user.setPassword(KeyUtil.bytesToHex(hashedPassword));
+    	// 存檔
+    	result = userRepository.save(user) != null;
+
+        return result;
+    }
 
 	/**
 	 * [前台 - 搜索] 取得使用者個人帳戶資料
