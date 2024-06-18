@@ -132,30 +132,30 @@ public class UserController {
 //	}
 
 	// 後台查詢所有使用者
-//	@PostMapping("/admin/member")
-//	public ResponseEntity<ApiResponse<List<MemberInfoDto>>> getMemberList() {
-//
-//		List<MemberInfoDto> memberList = userService.getMemberList();
-//
-//		return ResponseEntity.ok(new ApiResponse<>(true, "員工權限資訊", memberList));
-//	}
+	@PostMapping("/admin/member")
+	public ResponseEntity<ApiResponse<List<MemberInfoDto>>> getMemberList() {
+
+		List<MemberInfoDto> memberList = userService.getMemberList();
+
+		return ResponseEntity.ok(new ApiResponse<>(true, "員工權限資訊", memberList));
+	}
 
 	// root 使用者調整會員權限
-//	@PutMapping("/root/member")
-//	public ResponseEntity<ApiResponse<Boolean>> changeMemberAuthLevel(@RequestBody ChangeMemberAuthDto memberAuthDto) {
-//
-//		Boolean success = userService.updateMemberAuthLevel(memberAuthDto);
-//
-//		if (success) {
-//			return ResponseEntity.ok(new ApiResponse<>(true, "權限更新成功", true));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(false, "權限更新失敗", false));
-//	}
+	@PutMapping("/root/member")
+	public ResponseEntity<ApiResponse<Boolean>> changeMemberAuthLevel(@RequestBody ChangeMemberAuthDto memberAuthDto) {
+
+		Boolean success = userService.updateMemberAuthLevel(memberAuthDto);
+
+		if (success) {
+			return ResponseEntity.ok(new ApiResponse<>(true, "權限更新成功", true));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(false, "權限更新失敗", false));
+	}
 
 	// 取得運送人員清單
-//	@PostMapping("/admin/transporter")
-//	public ResponseEntity<ApiResponse<List<TransporterDto>>> getTransporterList(CurrUserDto currUserDto) {
-//		List<TransporterDto> transporterList = userService.getTransporterList();
-//		return ResponseEntity.ok(new ApiResponse<>(true, "運送人員資訊", transporterList));
-//	}
+	@PostMapping("/admin/transporter")
+	public ResponseEntity<ApiResponse<List<TransporterDto>>> getTransporterList() {
+		List<TransporterDto> transporterList = userService.getTransporterList();
+		return ResponseEntity.ok(new ApiResponse<>(true, "運送人員資訊", transporterList));
+	}
 }

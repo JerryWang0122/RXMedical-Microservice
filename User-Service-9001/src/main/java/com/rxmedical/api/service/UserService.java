@@ -4,6 +4,7 @@ import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.*;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.repository.UserRepository;
+import com.rxmedical.api.util.EmailUtil;
 import com.rxmedical.api.util.KeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Service;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class UserService {
@@ -228,55 +232,55 @@ public class UserService {
 	 * [後台 - 查詢] 後台查詢所有使用者的資料
 	 * @return List<MemberInfoDto> 會員資訊
 	 */
-//	public List<MemberInfoDto> getMemberList() {
-//		return userRepository.findAll().stream()
-//				.map(user -> new MemberInfoDto(user.getId(), user.getEmpCode(), user.getName(),
-//						user.getDept(), user.getTitle(), user.getAuthLevel(), user.getCreateDate()))
-//				.toList();
-//	}
+	public List<MemberInfoDto> getMemberList() {
+		return userRepository.findAll().stream()
+				.map(user -> new MemberInfoDto(user.getId(), user.getEmpCode(), user.getName(),
+						user.getDept(), user.getTitle(), user.getAuthLevel(), user.getCreateDate()))
+				.toList();
+	}
 
 	/**
 	 * [後台 root - 調整] 調整會員權限
 	 * @param memberAuthDto	欲調整的資訊，誰被調整成什麼等級
 	 * @return Boolean 是否調整成功
 	 */
-//	public Boolean updateMemberAuthLevel(ChangeMemberAuthDto memberAuthDto) {
-//		// 不能修改root權限
-//		if (memberAuthDto.getMemberId().equals(1)) {
-//			return false;
-//		}
-//		// 修改權限不可為空
-//		if (memberAuthDto.getAuthLevel() == null) {
-//			return false;
-//		}
-//		// 不能將任何人調成root權限，或是主動調成註冊狀態
-//		if (memberAuthDto.getAuthLevel().equals("root") || memberAuthDto.getAuthLevel().equals("register")) {
-//			return false;
-//		}
-//		User user = findUserById(memberAuthDto.getMemberId());
-//
-//		if (user != null) {
-//			if (user.getAuthLevel().equals("register")) {
-//				// 寄一封通知信
-//				ExecutorService executorService = Executors.newSingleThreadExecutor();
-//				executorService.execute(() -> EmailUtil.prepareAndSendEmail(user.getEmail()));
-//			}
-//			user.setAuthLevel(memberAuthDto.getAuthLevel());
-//			userRepository.save(user);
-//			return true;
-//		}
-//		return false;
-//	}
+	public Boolean updateMemberAuthLevel(ChangeMemberAuthDto memberAuthDto) {
+		// 不能修改root權限
+		if (memberAuthDto.getMemberId().equals(1)) {
+			return false;
+		}
+		// 修改權限不可為空
+		if (memberAuthDto.getAuthLevel() == null) {
+			return false;
+		}
+		// 不能將任何人調成root權限，或是主動調成註冊狀態
+		if (memberAuthDto.getAuthLevel().equals("root") || memberAuthDto.getAuthLevel().equals("register")) {
+			return false;
+		}
+		User user = findUserById(memberAuthDto.getMemberId());
+
+		if (user != null) {
+			if (user.getAuthLevel().equals("register")) {
+				// 寄一封通知信
+				ExecutorService executorService = Executors.newSingleThreadExecutor();
+				executorService.execute(() -> EmailUtil.prepareAndSendEmail(user.getEmail()));
+			}
+			user.setAuthLevel(memberAuthDto.getAuthLevel());
+			userRepository.save(user);
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * [輔助、後台 - 搜索] 提供"待運送"清單狀態的運送人員
 	 * @return List 運送人員(admin)
 	 */
-//	public List<TransporterDto> getTransporterList() {
-//		return userRepository.findByAuthLevel("admin").stream()
-//				.map(user -> new TransporterDto(user.getId(), user.getEmpCode(), user.getName()))
-//				.toList();
-//	}
+	public List<TransporterDto> getTransporterList() {
+		return userRepository.findByAuthLevel("admin").stream()
+				.map(user -> new TransporterDto(user.getId(), user.getEmpCode(), user.getName()))
+				.toList();
+	}
 
 	/**
 	 * [輔助] 利用id找到使用者
