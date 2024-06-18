@@ -1,10 +1,7 @@
 package com.rxmedical.api.controller;
 
 import com.rxmedical.api.client.JWTServiceClient;
-import com.rxmedical.api.model.dto.CSRFVerifyDTO;
-import com.rxmedical.api.model.dto.UserLoginDto;
-import com.rxmedical.api.model.dto.UserRegisterDto;
-import com.rxmedical.api.model.dto.UserUsageDto;
+import com.rxmedical.api.model.dto.*;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,30 +74,30 @@ public class UserController {
 	}
 	
 	// 取得個人資訊
-//	@PostMapping("/user/profile")
-//	public ResponseEntity<ApiResponse<UserInfoDto>> getUserInfo(CurrUserDto currUserDto) {
-//
-//		UserInfoDto info = userService.getUserInfo(currUserDto.getUserId());
-//
-//		if (info == null) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "使用者資訊不存在", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", info));
-//	}
+	@PostMapping("/user/profile")
+	public ResponseEntity<ApiResponse<UserInfoDto>> getUserInfo(@RequestBody CurrUserDto currUserDto) {
+
+		UserInfoDto info = userService.getUserInfo(currUserDto.getUserId());
+
+		if (info == null) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "使用者資訊不存在", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", info));
+	}
 	
 	// 修改個人資料
-//	@PutMapping("/user/profile")
-//	public ResponseEntity<ApiResponse<UserUsageDto>> editUserInfo(@RequestBody UserEditInfoDto userEditInfoDto) {
-//
-//		UserUsageDto userInfo = userService.updateUserInfo(userEditInfoDto);
-//
-//		if (userInfo == null) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "使用者資訊更新失敗", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", userInfo));
-//		// DataIntegrityViolationException 問題 (先不要處理這個 Error)
-//		// return ResponseEntity.ok(new ApiResponse<>(false, "信箱(帳號)重複", null));
-//	}
+	@PutMapping("/user/profile")
+	public ResponseEntity<ApiResponse<UserUsageDto>> editUserInfo(@RequestBody UserEditInfoDto userEditInfoDto) {
+
+		UserUsageDto userInfo = userService.updateUserInfo(userEditInfoDto);
+
+		if (userInfo == null) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "使用者資訊更新失敗", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", userInfo));
+		// DataIntegrityViolationException 問題 (先不要處理這個 Error)
+		// return ResponseEntity.ok(new ApiResponse<>(false, "信箱(帳號)重複", null));
+	}
 
 
 	// 取得個人衛材清單歷史

@@ -1,9 +1,7 @@
 package com.rxmedical.api.service;
 
 import com.rxmedical.api.client.JWTServiceClient;
-import com.rxmedical.api.model.dto.UserLoginDto;
-import com.rxmedical.api.model.dto.UserRegisterDto;
-import com.rxmedical.api.model.dto.UserUsageDto;
+import com.rxmedical.api.model.dto.*;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.repository.UserRepository;
 import com.rxmedical.api.util.KeyUtil;
@@ -114,46 +112,46 @@ public class UserService {
 	 * @param userId 使用者id
 	 * @return UserInfoDto 個人帳戶資料
 	 */
-//    public UserInfoDto getUserInfo(Integer userId) {
-//		User user = findUserById(userId);
-//		if (user != null) {
-//			return new UserInfoDto(
-//					user.getId(),
-//					user.getEmpCode(),
-//					user.getName(),
-//				    user.getDept(),
-//					user.getTitle(),
-//					user.getEmail(),
-//				    user.getAuthLevel()
-//			);
-//		}
-//		return null;
-//    }
+    public UserInfoDto getUserInfo(Integer userId) {
+		User user = findUserById(userId);
+		if (user != null) {
+			return new UserInfoDto(
+					user.getId(),
+					user.getEmpCode(),
+					user.getName(),
+				    user.getDept(),
+					user.getTitle(),
+					user.getEmail(),
+				    user.getAuthLevel()
+			);
+		}
+		return null;
+    }
 
 	/**
 	 * [前台 - 更新] 更新使用者個人帳戶資料
 	 * @param userEditInfoDto 使用者更新後的個人資訊
 	 * @return 更新後的部分個人資訊
 	 */
-//	public UserUsageDto updateUserInfo(UserEditInfoDto userEditInfoDto) {
-//
-//		// root 的資料不可被更改
-//		if (userEditInfoDto == null || userEditInfoDto.getUserId().equals(0)) {
-//			return null;
-//		}
-//
-//		// 更新資料
-//		User user = findUserById(userEditInfoDto.getUserId());
-//		if (user != null) {
-//			user.setName(userEditInfoDto.getName());
-//			user.setDept(userEditInfoDto.getDept());
-//			user.setTitle(userEditInfoDto.getTitle());
-//			user.setEmail(userEditInfoDto.getEmail());
-//			userRepository.save(user);
-//			return new UserUsageDto(user.getDept(), user.getName(), user.getAuthLevel(), null);
-//		}
-//		return null;
-//	}
+	public UserUsageDto updateUserInfo(UserEditInfoDto userEditInfoDto) {
+
+		// root 的資料不可被更改
+		if (userEditInfoDto == null || userEditInfoDto.getUserId().equals(0)) {
+			return null;
+		}
+
+		// 更新資料
+		User user = findUserById(userEditInfoDto.getUserId());
+		if (user != null) {
+			user.setName(userEditInfoDto.getName());
+			user.setDept(userEditInfoDto.getDept());
+			user.setTitle(userEditInfoDto.getTitle());
+			user.setEmail(userEditInfoDto.getEmail());
+			userRepository.save(user);
+			return new UserUsageDto(user.getDept(), user.getName(), user.getAuthLevel(), null);
+		}
+		return null;
+	}
 
 	/**
 	 * [前台 - 搜索] 取得使用者個人帳戶資料
