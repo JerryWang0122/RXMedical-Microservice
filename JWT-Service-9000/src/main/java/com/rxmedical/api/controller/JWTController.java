@@ -1,6 +1,7 @@
 package com.rxmedical.api.controller;
 
 import com.nimbusds.jose.JOSEException;
+import com.rxmedical.api.model.dto.CSRFVerifyDTO;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.JWTService;
@@ -34,11 +35,8 @@ public class JWTController {
 
     // 驗證CSRFToken
     @PostMapping("/CSRFToken")
-    public ResponseEntity<ApiResponse<Object>> checkCSRFToken(@RequestBody String token, HttpServletRequest request) throws ParseException {
-        System.out.println("Verify Token" + token);
-        System.out.println(request.getHeader("Authorization"));
-        boolean result = jwtService.checkCSRFTokenJWT(token, request);
-        System.out.println(result);
+    public ResponseEntity<ApiResponse<Object>> checkCSRFToken(@RequestBody CSRFVerifyDTO dto) throws ParseException {
+        boolean result = jwtService.checkCSRFTokenJWT(dto.token(), dto.authorizationHeader());
         if (result) {
             return ResponseEntity.ok(new ApiResponse<>(true, "CSRF Token 驗證通過", null));
         } else {
@@ -47,15 +45,15 @@ public class JWTController {
     }
 
     // 取得使用者權限Token
-    @GetMapping("/userToken")
+    @PostMapping("/userToken")
     public ResponseEntity<ApiResponse<String>> getUserUsageToken(@RequestBody User user) throws JOSEException {
         return ResponseEntity.ok(new ApiResponse<>(true, "User Token", jwtService.getUserUsageJWT(user)));
     }
 
     // 驗證並提取使用者Token資料
-    @PostMapping("/userToken")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> verifyUserUsageToken(HttpServletRequest request) throws ParseException {
-        Map<String, Object> userInfo = jwtService.verifyUserUsageJWT(request);
+    @PutMapping("/userToken")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> verifyUserUsageToken(@RequestBody String authorizationHeader) throws ParseException {
+        Map<String, Object> userInfo = jwtService.verifyUserUsageJWT(authorizationHeader);
         if (userInfo == null) {
             return ResponseEntity.ok(new ApiResponse<>(false, "User Token 驗證失敗", null));
         } else {

@@ -2,6 +2,7 @@ package com.rxmedical.api.service;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.rxmedical.api.model.dto.CSRFVerifyDTO;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.util.KeyUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,8 +43,7 @@ public class JWTService {
         return KeyUtil.signJWT(claimsSet, SIGNING_SECURE);
     }
 
-    public Map<String, Object> verifyUserUsageJWT(HttpServletRequest request) throws ParseException {
-        String authorizationHeader = request.getHeader("Authorization");
+    public Map<String, Object> verifyUserUsageJWT(String authorizationHeader) throws ParseException {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ") ) {
             return null;
         }
@@ -79,17 +79,13 @@ public class JWTService {
     /**
      * 檢驗request header 的 CSRF Token 與傳入的token是否吻合
      * @param token form body 傳入的 CSRF Token
-     * @param request header's authorization should be set and bearer token
+     * @param authorizationHeader header's authorization should be set and bearer token
      * @return CSRF Token是否符合
      * @throws ParseException
      */
-    public boolean checkCSRFTokenJWT(String token, HttpServletRequest request) throws ParseException {
-        if (token == null || request == null) {
-            return false;
-        }
+    public boolean checkCSRFTokenJWT(String token, String authorizationHeader) throws ParseException {
 
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ") ) {
+        if (token == null || authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return false;
         }
 
