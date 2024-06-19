@@ -26,4 +26,9 @@ public class HistoryToolController {
     public ResponseEntity<ApiResponse<Integer>> getApplyItemsCount(@RequestBody Record record) {
         return ResponseEntity.ok(new ApiResponse<>(true, "申請項目數量", historyService.getApplyItemsCount(record)));
     }
+
+    @PutMapping("/save")
+    public ResponseEntity<ApiResponse<Object>> saveHistory(@RequestBody History history) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "儲存成功", historyService.saveHistory(history)));
+    }
 }

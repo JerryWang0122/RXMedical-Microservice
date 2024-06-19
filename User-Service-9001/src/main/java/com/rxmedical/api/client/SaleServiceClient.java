@@ -5,7 +5,6 @@ import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.model.response.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

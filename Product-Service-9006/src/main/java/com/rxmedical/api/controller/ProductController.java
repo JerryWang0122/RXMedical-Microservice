@@ -1,7 +1,6 @@
 package com.rxmedical.api.controller;
 
 import com.rxmedical.api.model.dto.*;
-import com.rxmedical.api.model.po.Product;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +47,14 @@ public class ProductController {
 	}
 
 	// 後台新增商品
-//	@PostMapping("/admin/material/create")
-//	public ResponseEntity<ApiResponse<Object>> materialInfoUpload(@RequestBody MaterialFileUploadDto materialInfoDto) {
-//		Boolean success = productService.registerProduct(materialInfoDto);
-//		if(!success) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "新增產品失敗", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "新增產品成功", null));
-//	}
+	@PostMapping("/admin/material/create")
+	public ResponseEntity<ApiResponse<Object>> materialInfoUpload(@RequestBody MaterialFileUploadDto materialInfoDto) {
+		Boolean success = productService.registerProduct(materialInfoDto);
+		if(!success) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "新增產品失敗", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "新增產品成功", null));
+	}
 
 	// 後台查找單一商品資料
 	@PostMapping("/admin/material/edit")

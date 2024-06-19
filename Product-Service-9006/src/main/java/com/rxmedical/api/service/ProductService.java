@@ -3,8 +3,11 @@ package com.rxmedical.api.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.rxmedical.api.client.SaleServiceClient;
 import com.rxmedical.api.client.UserServiceClient;
 import com.rxmedical.api.model.dto.*;
+import com.rxmedical.api.model.po.History;
+import com.rxmedical.api.model.po.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.rxmedical.api.model.po.Product;
@@ -18,8 +21,8 @@ public class ProductService {
 
     @Autowired
     private UserServiceClient userServiceClient;
-//    @Autowired
-//    private HistoryRepository historyRepository;
+    @Autowired
+    private SaleServiceClient saleServiceClient;
 
 
     /**
@@ -113,51 +116,50 @@ public class ProductService {
                 product.setPicture(infoDto.getUpdatePicture());
             }
 
-//            productRepository.save(product);
             saveProduct(product);
             return true;
         }
         return false;
     }
 
-//    /**
-//     * [新增] 註冊產品資訊
-//     * @param infoDto 產品資訊及第一筆進貨資料
-//     * @return Boolean 是否成功
-//     */
-//    @Transactional
-//    public Boolean registerProduct(MaterialFileUploadDto infoDto) {
-//
-//        // 因為經過aop，所以直接get
-//        User user = userService.findUserById(infoDto.getUserId());
-//
-//        // 產品資料寫入資料庫
-//        Product product = new Product();
-//        product.setCode(infoDto.getCode());
-//        product.setName(infoDto.getName());
-//        product.setStock(0);
-//        product.setSafetyThreshold(infoDto.getSafetyThreshold());
-//        product.setDescription(infoDto.getDescription());
-//        product.setStorage(infoDto.getStorage());
-//        product.setPicture(infoDto.getPicture());
-//        product.setCategory(infoDto.getCategory());
-//        Product result = productRepository.save(product);
-//
-//        // 產品資料寫入歷史紀錄
-//        History history = new History();
-//        history.setQuantity(infoDto.getQuantity());
-//        history.setPrice(infoDto.getPrice());
-//        history.setFlow("進");
-//        history.setProduct(result);
-//        history.setRecord(null);
-//        history.setUser(user);
-//        historyRepository.save(history);
-//
-//        // 加入第一筆產品庫存
-//        result.setStock(infoDto.getQuantity());
-//        productRepository.save(result);
-//        return true;
-//    }
+    /**
+     * [新增] 註冊產品資訊
+     * @param infoDto 產品資訊及第一筆進貨資料
+     * @return Boolean 是否成功
+     */
+    // TODO: 這邊儲存有問題，需補償@Transactional(第二種case, product <-> history)
+    public Boolean registerProduct(MaterialFileUploadDto infoDto) {
+
+        // 因為經過aop，所以直接get
+        User user = userServiceClient.findUserById(infoDto.getUserId()).getData();
+
+        // 產品資料寫入資料庫
+        Product product = new Product();
+        product.setCode(infoDto.getCode());
+        product.setName(infoDto.getName());
+        product.setStock(0);
+        product.setSafetyThreshold(infoDto.getSafetyThreshold());
+        product.setDescription(infoDto.getDescription());
+        product.setStorage(infoDto.getStorage());
+        product.setPicture(infoDto.getPicture());
+        product.setCategory(infoDto.getCategory());
+        Product result = productRepository.save(product);
+
+        // 產品資料寫入歷史紀錄
+        History history = new History();
+        history.setQuantity(infoDto.getQuantity());
+        history.setPrice(infoDto.getPrice());
+        history.setFlow("進");
+        history.setProduct(result);
+        history.setRecord(null);
+        history.setUser(user);
+        saleServiceClient.saveHistory(history);
+
+        // 加入第一筆產品庫存
+        result.setStock(infoDto.getQuantity());
+        productRepository.save(result);
+        return true;
+    }
 
     public Product findProductById(Integer id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
