@@ -7,12 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tool/products")
 public class ToolController {
 
     @Autowired
     private ProductService productService;
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Product>>> getAllProducts() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "產品資訊列表", productService.findAllProducts()));
+    }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse<Product>> findProductById(@PathVariable Integer productId) {

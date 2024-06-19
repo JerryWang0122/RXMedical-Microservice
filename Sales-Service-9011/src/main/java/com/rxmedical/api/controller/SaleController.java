@@ -1,8 +1,6 @@
 package com.rxmedical.api.controller;
 
 import com.rxmedical.api.model.dto.*;
-import com.rxmedical.api.model.po.Product;
-import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,7 +176,5 @@ public class SaleController {
 		}
 		return ResponseEntity.ok(new ApiResponse<>(true, "最新庫存", currStock));
 	}
-
-
 
 }
