@@ -105,31 +105,31 @@ public class SaleService {
         return null;
     }
 
-//    /**
-//     * [後台] 將訂單狀態從待確認往取消推送
-//     * @param recordId 操作訂單ID
-//     * @return 正常: null, 不正常: [errorMsg]
-//     */
-//    @Transactional
-//    public synchronized String pushToRejected(Integer recordId) {
-//        Record record = findRecordById(recordId);
-//        if (record == null) {
-//            return "找不到訂單";
-//        }
-//        if (!record.getStatus().equals("unchecked")) {
-//            return "訂單狀態已轉移";
-//        }
-//        record.setStatus("rejected");
-//        recordRepository.save(record);
-//        // 把該訂單的History quantity 還給 Product stock
-//        List<History> recordDetails = historyRepository.findByRecord(record);
-//        recordDetails.forEach(history -> {
-//                         Product product = history.getProduct();
-//                         product.setStock(product.getStock() + history.getQuantity());
-//                         productRepository.save(product);
-//                     });
-//        return null;
-//    }
+    /**
+     * [後台] 將訂單狀態從待確認往取消推送
+     * @param recordId 操作訂單ID
+     * @return 正常: null, 不正常: [errorMsg]
+     */
+    // TODO: 這邊儲存有問題，需補償@Transactional
+    public synchronized String pushToRejected(Integer recordId) {
+        Record record = findRecordById(recordId);
+        if (record == null) {
+            return "找不到訂單";
+        }
+        if (!record.getStatus().equals("unchecked")) {
+            return "訂單狀態已轉移";
+        }
+        record.setStatus("rejected");
+        recordRepository.save(record);
+        // 把該訂單的History quantity 還給 Product stock
+        List<History> recordDetails = historyRepository.findByRecord(record);
+        recordDetails.forEach(history -> {
+                         Product product = history.getProduct();
+                         product.setStock(product.getStock() + history.getQuantity());
+                         productServiceClient.saveProduct(product);
+                     });
+        return null;
+    }
 
     /**
      * [後台] 取得訂單明細
@@ -330,74 +330,74 @@ public class SaleService {
                 .toList();
     }
 
-//    /**
-//     * [前台] 產生衛材申請單
-//     * @param recordDto 申請資訊[申請人及申請項目]
-//     * @return String -> 檢查狀況，若為null則代表通過，生成訂單
-//     */
-//    @Transactional
-//    public synchronized String checkOrder(ApplyRecordDto recordDto) {
-//        if (recordDto.getApplyItems().isEmpty()) {
-//            return "沒有申請項目";
-//        }
-//
-//        // 錯誤清單
-//        List<String> errorList = new ArrayList<>();
-//
-//        // 先檢查有沒有不存在的貨號
-//        for (ApplyItemDto item : recordDto.getApplyItems()) {
-//            Product product = productService.findProductById(item.productId());
-//            if (product == null) {
-//                return "貨號不存在";
-//            } else {
-//                // 如果貨不夠
-//                if (product.getStock() < item.applyQty()) {
-//                    errorList.add("[" + product.getName() + "]庫存: " + product.getStock());
-//                }
-//            }
-//        }
-//        // 如果errorList裡面有東西，回傳
-//        if (!errorList.isEmpty()) {
-//            return String.join("<br>", errorList);
-//        }
-//        //---------------- 檢查完成，生成訂單 ---------------
-//        // 已經通過aop檢查了，直接拿
-//        User demander = userService.findUserById(recordDto.getUserId());
-//
-//        Record record = new Record();
-//        record.setCode(generateCode());
-//        record.setStatus("unchecked");
-//        record.setDemander(demander);
-//
-//        Record recordWithID = recordRepository.save(record);
-//
-//        recordDto.getApplyItems().stream().forEach(item -> {
-//            // 因為上面檢查過了，直接拿
-//            Product product = productService.findProductById(item.productId());
-//            // 更新庫存
-//            product.setStock(product.getStock() - item.applyQty());
-//            productRepository.save(product);
-//
-//            // 產生歷史紀錄
-//            History history = new History();
-//            history.setQuantity(item.applyQty());
-//            history.setPrice(0);
-//            history.setFlow("售");
-//            history.setProduct(product);
-//            history.setRecord(recordWithID);
-//            historyRepository.save(history);
-//        });
-//
-//        return null;
-//
-//    }
+    /**
+     * [前台] 產生衛材申請單
+     * @param recordDto 申請資訊[申請人及申請項目]
+     * @return String -> 檢查狀況，若為null則代表通過，生成訂單
+     */
+    // TODO: 這邊儲存有問題，需補償@Transactional
+    public synchronized String checkOrder(ApplyRecordDto recordDto) {
+        if (recordDto.getApplyItems().isEmpty()) {
+            return "沒有申請項目";
+        }
+
+        // 錯誤清單
+        List<String> errorList = new ArrayList<>();
+
+        // 先檢查有沒有不存在的貨號
+        for (ApplyItemDto item : recordDto.getApplyItems()) {
+            Product product = productServiceClient.findProductById(item.productId()).getData();
+            if (product == null) {
+                return "貨號不存在";
+            } else {
+                // 如果貨不夠
+                if (product.getStock() < item.applyQty()) {
+                    errorList.add("[" + product.getName() + "]庫存: " + product.getStock());
+                }
+            }
+        }
+        // 如果errorList裡面有東西，回傳
+        if (!errorList.isEmpty()) {
+            return String.join("<br>", errorList);
+        }
+        //---------------- 檢查完成，生成訂單 ---------------
+        // 已經通過aop檢查了，直接拿
+        User demander = userServiceClient.findUserById(recordDto.getUserId()).getData();
+
+        Record record = new Record();
+        record.setCode(generateCode());
+        record.setStatus("unchecked");
+        record.setDemander(demander);
+
+        Record recordWithID = recordRepository.save(record);
+
+        recordDto.getApplyItems().stream().forEach(item -> {
+            // 因為上面檢查過了，直接拿
+            Product product = productServiceClient.findProductById(item.productId()).getData();
+            // 更新庫存
+            product.setStock(product.getStock() - item.applyQty());
+            productServiceClient.saveProduct(product);
+
+            // 產生歷史紀錄
+            History history = new History();
+            history.setQuantity(item.applyQty());
+            history.setPrice(0);
+            history.setFlow("售");
+            history.setProduct(product);
+            history.setRecord(recordWithID);
+            historyRepository.save(history);
+        });
+
+        return null;
+
+    }
 
     /**
      * [後台 - 衛材進銷] 進貨
      * @param callDto 進貨資料
      * @return Integer 最新庫存
      */
-    @Transactional
+    // TODO: 這邊儲存有問題，需補償@Transactional
     public synchronized Integer callMaterial(SaleMaterialDto callDto) {
         Product product = productServiceClient.findProductById(callDto.getMaterialId()).getData();
         // 因為有過aop了，所以直接拿
@@ -418,66 +418,65 @@ public class SaleService {
 
         // 更新庫存
         product.setStock(product.getStock() + callDto.getQuantity());
-        // TODO: 這邊儲存有問題
         productServiceClient.saveProduct(product);
         return product.getStock();
     }
 
-//    /**
-//     * [後台 - 衛材進銷] 銷毀貨品
-//     * @param destroyDto 銷毀貨物資料
-//     * @return Integer 最新庫存，null表示找不到貨，-[number]表示庫存不足 -> number 表示目前庫存量
-//     */
-//    @Transactional
-//    public synchronized Integer destroyMaterial(SaleMaterialDto destroyDto) {
-//        Product product = productService.findProductById(destroyDto.getMaterialId());
-//        // 因為有過aop了，所以直接拿
-//        User user = userService.findUserById(destroyDto.getUserId());
-//
-//        // 商品不存在則直接退回
-//        if (product == null) {
-//            return null;
-//        }
-//
-//        // 檢查存貨量
-//        if (product.getStock() < destroyDto.getQuantity()) {
-//            return -product.getStock();
-//        }
-//
-//        History history = new History();
-//        history.setQuantity(destroyDto.getQuantity());
-//        history.setPrice(destroyDto.getPrice());
-//        history.setFlow("銷");
-//        history.setProduct(product);
-//        history.setUser(user);
-//        historyRepository.save(history);
-//
-//        // 更新庫存
-//        product.setStock(product.getStock() - destroyDto.getQuantity());
-//        productRepository.save(product);
-//        return product.getStock();
-//    }
+    /**
+     * [後台 - 衛材進銷] 銷毀貨品
+     * @param destroyDto 銷毀貨物資料
+     * @return Integer 最新庫存，null表示找不到貨，-[number]表示庫存不足 -> number 表示目前庫存量
+     */
+    // TODO: 這邊儲存有問題，需補償@Transactional
+    public synchronized Integer destroyMaterial(SaleMaterialDto destroyDto) {
+        Product product = productServiceClient.findProductById(destroyDto.getMaterialId()).getData();
+        // 因為有過aop了，所以直接拿
+        User user = userServiceClient.findUserById(destroyDto.getUserId()).getData();
+
+        // 商品不存在則直接退回
+        if (product == null) {
+            return null;
+        }
+
+        // 檢查存貨量
+        if (product.getStock() < destroyDto.getQuantity()) {
+            return -product.getStock();
+        }
+
+        History history = new History();
+        history.setQuantity(destroyDto.getQuantity());
+        history.setPrice(destroyDto.getPrice());
+        history.setFlow("銷");
+        history.setProduct(product);
+        history.setUser(user);
+        historyRepository.save(history);
+
+        // 更新庫存
+        product.setStock(product.getStock() - destroyDto.getQuantity());
+        productServiceClient.saveProduct(product);
+        return product.getStock();
+    }
 
 
-//    /**
-//     * [工具] 產生訂單編號
-//     * 產生的code：格式為當天日期加四位的大寫英文和數字的組合亂數 [YYYYMMDDXXXX]
-//     * @return String 訂單編號
-//     */
-//    private synchronized String generateCode() {
-//        // 获取当前日期并格式化为YYYYMMDD
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-//        String date = sdf.format(new Date());
-//        String code = date + generateRandomCode(4);
-//
-//        // 判断是否已经存在该订单
-//        while (recordRepository.existsByCode(code)) {
-//            code = date + generateRandomCode(4);
-//        }
-//
-//        // 返回日期和乱数组合的字符串
-//        return code;
-//    }
+    /**
+     * [工具] 產生訂單編號
+     * 產生的code：格式為當天日期加四位的大寫英文和數字的組合亂數 [YYYYMMDDXXXX]
+     * @return String 訂單編號
+     */
+    private synchronized String generateCode() {
+        // 获取当前日期并格式化为YYYYMMDD
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String date = sdf.format(new Date());
+        String code = date + generateRandomCode(4);
+
+        // 判断是否已经存在该订单
+        while (recordRepository.existsByCode(code)) {
+            code = date + generateRandomCode(4);
+        }
+
+        // 返回日期和乱数组合的字符串
+        return code;
+    }
 
     // --------------------------- 輔助 方法 ------------------------------
     public Record findRecordById(Integer recordId) {
