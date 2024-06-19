@@ -180,9 +180,9 @@ public class SaleController {
 	}
 
 	// --------------------- Tools -----------------------
-	@PostMapping("tools/findRecord")
-	public ResponseEntity<ApiResponse<Record>> findRecord(@RequestBody Integer recordId) {
-		return ResponseEntity.ok(new ApiResponse<>(true, "訂單資訊", saleService.findRecordById(recordId)));
-	}
+//	@PostMapping("tools/findRecord")
+//	public ResponseEntity<ApiResponse<Record>> findRecord(@RequestBody Integer recordId) {
+//		return ResponseEntity.ok(new ApiResponse<>(true, "訂單資訊", saleService.findRecordById(recordId)));
+//	}
 
 }

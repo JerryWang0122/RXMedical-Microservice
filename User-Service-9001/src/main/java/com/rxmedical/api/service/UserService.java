@@ -1,6 +1,7 @@
 package com.rxmedical.api.service;
 
 import com.rxmedical.api.client.JWTServiceClient;
+import com.rxmedical.api.client.SaleServiceClient;
 import com.rxmedical.api.model.dto.*;
 import com.rxmedical.api.model.po.History;
 import com.rxmedical.api.model.po.User;
@@ -25,14 +26,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-//	@Autowired
-//	private RecordRepository recordRepository;
-
-//	@Autowired
-//	private HistoryRepository historyRepository;
-
 	@Autowired
 	private JWTServiceClient jwtServiceClient;
+	@Autowired
+	private SaleServiceClient saleServiceClient;
 
 
 	/**

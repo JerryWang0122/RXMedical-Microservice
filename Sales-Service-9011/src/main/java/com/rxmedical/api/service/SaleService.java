@@ -8,7 +8,6 @@ import com.rxmedical.api.model.po.Product;
 import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.repository.HistoryRepository;
-import com.rxmedical.api.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +19,9 @@ import java.util.*;
 public class SaleService {
 
     @Autowired
-    private HistoryRepository historyRepository;
+    private HistoryService historyService;
     @Autowired
-    private RecordRepository recordRepository;
+    private RecordService recordService;
 
     @Autowired
     private UserServiceClient userServiceClient;
@@ -36,7 +35,7 @@ public class SaleService {
      * @return 正常: null, 不正常: [errorMsg]
      */
     public synchronized String pushToPicking(Integer recordId) {
-        Record record = findRecordById(recordId);
+        Record record = recordService.findRecordById(recordId);
         if (record == null) {
             return "找不到訂單";
         }
@@ -44,7 +43,7 @@ public class SaleService {
             return "訂單狀態已轉移";
         }
         record.setStatus("picking");
-        recordRepository.save(record);
+        recordService.saveRecord(record);
         return null;
     }
 
@@ -54,18 +53,18 @@ public class SaleService {
      * @return 正常: null, 不正常: [errorMsg]
      */
     public synchronized String pushToWaiting(Integer recordId) {
-        Record record = findRecordById(recordId);
+        Record record = recordService.findRecordById(recordId);
         if (record == null) {
             return "找不到訂單";
         }
         if (!record.getStatus().equals("picking")) {
             return "訂單狀態已轉移";
         }
-        if (historyRepository.countByRecordAndUserIsNull(record) != 0) {
+        if (historyService.isAllItemTaken(record)) {
             return "還有商品尚未撿貨";
         }
         record.setStatus("waiting");
-        recordRepository.save(record);
+        recordService.saveRecord(record);
         return null;
     }
 
@@ -78,7 +77,7 @@ public class SaleService {
     public synchronized String pushToTransporting(PushToTransportingDto dto) {
 
         // 檢查訂單
-        Record record = findRecordById(dto.getRecordId());
+        Record record = recordService.findRecordById(dto.getRecordId());
         if (record == null) {
             return "找不到訂單";
         }
@@ -101,7 +100,7 @@ public class SaleService {
         // 更新狀態
         record.setStatus("transporting");
         record.setTransporter(transporter);
-        recordRepository.save(record);
+        recordService.saveRecord(record);
         return null;
     }
 
@@ -112,7 +111,7 @@ public class SaleService {
      */
     // TODO: 這邊儲存有問題，需補償@Transactional
     public synchronized String pushToRejected(Integer recordId) {
-        Record record = findRecordById(recordId);
+        Record record = recordService.findRecordById(recordId);
         if (record == null) {
             return "找不到訂單";
         }
@@ -120,9 +119,9 @@ public class SaleService {
             return "訂單狀態已轉移";
         }
         record.setStatus("rejected");
-        recordRepository.save(record);
+        record = recordService.saveRecord(record);
         // 把該訂單的History quantity 還給 Product stock
-        List<History> recordDetails = historyRepository.findByRecord(record);
+        List<History> recordDetails = historyService.findRecordDetails(record);
         recordDetails.forEach(history -> {
                          Product product = history.getProduct();
                          product.setStock(product.getStock() + history.getQuantity());
@@ -137,11 +136,11 @@ public class SaleService {
      * @return (null 代表沒這個訂單)，List為明細資料
      */
     public synchronized List<OrderDetailDto> getOrderDetails(Integer recordId) {
-        Record record = findRecordById(recordId);
+        Record record = recordService.findRecordById(recordId);
         if (record == null){ // 因為有檢查過，所以訂單內不可能為空，回傳null代表沒有這一個訂單編號
             return null;
         }
-        List<History> recordDetails = historyRepository.findByRecord(record);
+        List<History> recordDetails = historyService.findRecordDetails(record);
         return recordDetails.stream()
                 .map(history -> new OrderDetailDto(
                         history.getProduct().getName(),
@@ -157,14 +156,14 @@ public class SaleService {
      * @return (null 代表沒這個訂單貨狀態已經推移)，List為明細資料
      */
     public synchronized List<HistoryProductDto> getHistoryProductList(Integer recordId) {
-        Record record = findRecordById(recordId);
+        Record record = recordService.findRecordById(recordId);
         if (record == null) {
             return null;
         }
         if (!record.getStatus().equals("picking")) {
             return null;
         }
-        List<History> recordDetails = historyRepository.findByRecord(record);
+        List<History> recordDetails = historyService.findRecordDetails(record);
         return recordDetails.stream()
                 .map(history -> new HistoryProductDto(
                                         history.getId(),
@@ -186,7 +185,7 @@ public class SaleService {
      * @return String errMsg
      */
     public synchronized String pickUpItem(PickingHistoryDto pickingDto) {
-        History history = findHistoryById(pickingDto.getHistoryId());
+        History history = historyService.findHistoryById(pickingDto.getHistoryId());
         if (history == null) {
             return "無此資料";
         }
@@ -200,7 +199,7 @@ public class SaleService {
             return "貨品已經拿過了";
         }
         history.setUser(userServiceClient.findUserById(pickingDto.getUserId()).getData());
-        historyRepository.save(history);
+        historyService.saveHistory(history);
         return null;
     }
 
@@ -209,12 +208,12 @@ public class SaleService {
      * @return List 未確認訂單列表
      */
     public synchronized List<OrderListDto> getUncheckedOrderList() {
-        List<Record> records = recordRepository.findByStatus("unchecked");
+        List<Record> records = recordService.findByStatus("unchecked");
         return records.stream()
                       .map(record -> new OrderListDto(
                                         record.getId(),
                                         record.getCode(),
-                                        historyRepository.countByRecord(record),
+                                        historyService.getApplyItemsCount(record),
                                         new OrderDemanderDto(
                                                 record.getDemander().getDept(),
                                                 record.getDemander().getTitle(),
@@ -230,12 +229,12 @@ public class SaleService {
      * @return List 待撿貨訂單列表
      */
     public synchronized List<OrderListDto> getPickingOrderList() {
-        List<Record> records = recordRepository.findByStatus("picking");
+        List<Record> records = recordService.findByStatus("picking");
         return records.stream()
                 .map(record -> new OrderListDto(
                         record.getId(),
                         record.getCode(),
-                        historyRepository.countByRecord(record),
+                        historyService.getApplyItemsCount(record),
                         new OrderDemanderDto(
                                 record.getDemander().getDept(),
                                 record.getDemander().getTitle(),
@@ -251,12 +250,12 @@ public class SaleService {
      * @return List 待出貨訂單列表
      */
     public synchronized List<OrderListDto> getWaitingOrderList() {
-        List<Record> records = recordRepository.findByStatus("waiting");
+        List<Record> records = recordService.findByStatus("waiting");
         return records.stream()
                 .map(record -> new OrderListDto(
                         record.getId(),
                         record.getCode(),
-                        historyRepository.countByRecord(record),
+                        historyService.getApplyItemsCount(record),
                         new OrderDemanderDto(
                                 record.getDemander().getDept(),
                                 record.getDemander().getTitle(),
@@ -272,12 +271,12 @@ public class SaleService {
      * @return List 運送中訂單列表
      */
     public synchronized List<OrderListDto> getTransportingOrderList() {
-        List<Record> records = recordRepository.findByStatus("transporting");
+        List<Record> records = recordService.findByStatus("transporting");
         return records.stream()
                 .map(record -> new OrderListDto(
                         record.getId(),
                         record.getCode(),
-                        historyRepository.countByRecord(record),
+                        historyService.getApplyItemsCount(record),
                         new OrderDemanderDto(
                                 record.getDemander().getDept(),
                                 record.getDemander().getTitle(),
@@ -293,12 +292,12 @@ public class SaleService {
      * @return List 已完成訂單列表
      */
     public synchronized List<OrderListDto> getFinishOrderList() {
-        List<Record> records = recordRepository.findByStatus("finish");
+        List<Record> records = recordService.findByStatus("finish");
         return records.stream()
                 .map(record -> new OrderListDto(
                         record.getId(),
                         record.getCode(),
-                        historyRepository.countByRecord(record),
+                        historyService.getApplyItemsCount(record),
                         new OrderDemanderDto(
                                 record.getDemander().getDept(),
                                 record.getDemander().getTitle(),
@@ -314,12 +313,12 @@ public class SaleService {
      * @return List 取消訂單列表
      */
     public synchronized List<OrderListDto> getRejectedOrderList() {
-        List<Record> records = recordRepository.findByStatus("rejected");
+        List<Record> records = recordService.findByStatus("rejected");
         return records.stream()
                 .map(record -> new OrderListDto(
                             record.getId(),
                             record.getCode(),
-                            historyRepository.countByRecord(record),
+                            historyService.getApplyItemsCount(record),
                             new OrderDemanderDto(
                                     record.getDemander().getDept(),
                                     record.getDemander().getTitle(),
@@ -369,7 +368,7 @@ public class SaleService {
         record.setStatus("unchecked");
         record.setDemander(demander);
 
-        Record recordWithID = recordRepository.save(record);
+        Record recordWithID = recordService.saveRecord(record);
 
         recordDto.getApplyItems().stream().forEach(item -> {
             // 因為上面檢查過了，直接拿
@@ -385,7 +384,7 @@ public class SaleService {
             history.setFlow("售");
             history.setProduct(product);
             history.setRecord(recordWithID);
-            historyRepository.save(history);
+            historyService.saveHistory(history);
         });
 
         return null;
@@ -414,7 +413,7 @@ public class SaleService {
         history.setFlow("進");
         history.setProduct(product);
         history.setUser(user);
-        historyRepository.save(history);
+        historyService.saveHistory(history);
 
         // 更新庫存
         product.setStock(product.getStock() + callDto.getQuantity());
@@ -449,7 +448,7 @@ public class SaleService {
         history.setFlow("銷");
         history.setProduct(product);
         history.setUser(user);
-        historyRepository.save(history);
+        historyService.saveHistory(history);
 
         // 更新庫存
         product.setStock(product.getStock() - destroyDto.getQuantity());
@@ -470,23 +469,12 @@ public class SaleService {
         String code = date + generateRandomCode(4);
 
         // 判断是否已经存在该订单
-        while (recordRepository.existsByCode(code)) {
+        while (recordService.isCodeExist(code)) {
             code = date + generateRandomCode(4);
         }
 
         // 返回日期和乱数组合的字符串
         return code;
-    }
-
-    // --------------------------- 輔助 方法 ------------------------------
-    public Record findRecordById(Integer recordId) {
-        Optional<Record> optionalRecord = recordRepository.findById(recordId);
-        return optionalRecord.orElse(null);
-    }
-
-    public History findHistoryById(Integer historyId) {
-        Optional<History> optionalHistory = historyRepository.findById(historyId);
-        return optionalHistory.orElse(null);
     }
 
     // -------------------------------------------------------------------
