@@ -2,6 +2,7 @@ package com.rxmedical.api.controller;
 
 import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.*;
+import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -157,5 +158,12 @@ public class UserController {
 	public ResponseEntity<ApiResponse<List<TransporterDto>>> getTransporterList() {
 		List<TransporterDto> transporterList = userService.getTransporterList();
 		return ResponseEntity.ok(new ApiResponse<>(true, "運送人員資訊", transporterList));
+	}
+
+	// ---------------------- TOOLS ---------------------
+	@PostMapping("/tools/findUser")
+	public ResponseEntity<ApiResponse<User>> findUserById(@RequestBody Integer userId) {
+		User user = userService.findUserById(userId);
+		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", user));
 	}
 }

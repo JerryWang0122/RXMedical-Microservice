@@ -3,6 +3,7 @@ package com.rxmedical.api.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.rxmedical.api.client.UserServiceClient;
 import com.rxmedical.api.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-//    @Autowired
-//    private UserService userService;
+    @Autowired
+    private UserServiceClient userServiceClient;
 //    @Autowired
 //    private HistoryRepository historyRepository;
 
@@ -112,7 +113,8 @@ public class ProductService {
                 product.setPicture(infoDto.getUpdatePicture());
             }
 
-            productRepository.save(product);
+//            productRepository.save(product);
+            saveProduct(product);
             return true;
         }
         return false;
@@ -166,6 +168,8 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
 
 }
