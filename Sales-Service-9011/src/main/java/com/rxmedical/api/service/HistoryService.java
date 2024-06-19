@@ -1,5 +1,6 @@
 package com.rxmedical.api.service;
 
+import com.rxmedical.api.model.dto.GetProductHistoryDto;
 import com.rxmedical.api.model.po.History;
 import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.repository.HistoryRepository;
@@ -34,5 +35,9 @@ public class HistoryService {
 
     public Integer getApplyItemsCount(Record record) {
         return historyRepository.countByRecord(record);
+    }
+
+    public List<History> getProductHistoryAfter(GetProductHistoryDto dto) {
+        return historyRepository.findByProductAndUpdateDateAfter(dto.product(), dto.date());
     }
 }

@@ -26,10 +26,10 @@ public class AnalyzeController {
     }
 
     // 後台取得勞動積分
-//    @PostMapping("/laborScore")
-//    public ResponseEntity<ApiResponse<Map<String, Integer>>> getLaborScore() {
-//        return ResponseEntity.ok(new ApiResponse<>(true, "勞動積分", analyzeService.getLaborScore()));
-//    }
+    @PostMapping("/laborScore")
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getLaborScore() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "勞動積分", analyzeService.getLaborScore()));
+    }
 
     // 後台取得庫存safety threshold ratio
     @PostMapping("/materialSafetyRatio")
@@ -38,8 +38,8 @@ public class AnalyzeController {
     }
 
     // 後台取得建議進貨量趨勢圖
-//    @PostMapping("/callMaterialDiagram")
-//    public ResponseEntity<ApiResponse<List<CallAdviceDto>>> getCallMaterialDiagram(@RequestBody GetMaterialInfoDto infoDto) {
-//        return ResponseEntity.ok(new ApiResponse<>(true, "進貨建議圖表", analyzeService.getCallMaterialDiagram(infoDto.getMaterialId())));
-//    }
+    @PostMapping("/callMaterialDiagram")
+    public ResponseEntity<ApiResponse<List<CallAdviceDto>>> getCallMaterialDiagram(@RequestBody GetMaterialInfoDto infoDto) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "進貨建議圖表", analyzeService.getCallMaterialDiagram(infoDto.getMaterialId())));
+    }
 }

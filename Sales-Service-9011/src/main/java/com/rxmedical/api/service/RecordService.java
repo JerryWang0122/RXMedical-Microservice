@@ -6,6 +6,7 @@ import com.rxmedical.api.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,5 +35,9 @@ public class RecordService {
 
     public List<Record> findByDemander(User demander) {
         return recordRepository.findByDemander(demander);
+    }
+
+    public List<Record> getFinishRecordsAfter(Date monthAgoDate) {
+        return recordRepository.findByStatusAndUpdateDateAfter("finish", monthAgoDate);
     }
 }

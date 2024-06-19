@@ -1,5 +1,6 @@
 package com.rxmedical.api.controller;
 
+import com.rxmedical.api.model.dto.GetProductHistoryDto;
 import com.rxmedical.api.model.po.History;
 import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.model.response.ApiResponse;
@@ -31,4 +32,10 @@ public class HistoryToolController {
     public ResponseEntity<ApiResponse<Object>> saveHistory(@RequestBody History history) {
         return ResponseEntity.ok(new ApiResponse<>(true, "儲存成功", historyService.saveHistory(history)));
     }
+
+    @PostMapping("/product")
+    public ResponseEntity<ApiResponse<List<History>>> findProductHistoryAfter(@RequestBody GetProductHistoryDto dto) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "歷史紀錄", historyService.getProductHistoryAfter(dto)));
+    }
+
 }

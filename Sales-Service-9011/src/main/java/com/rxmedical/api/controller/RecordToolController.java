@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -29,5 +30,10 @@ public class RecordToolController {
     @PostMapping("/demander")
     public ResponseEntity<ApiResponse<List<Record>>> findRecordsByDemander(@RequestBody User user) {
         return ResponseEntity.ok(new ApiResponse<>(true, "訂單資訊", recordService.findByDemander(user)));
+    }
+
+    @PostMapping("finish")
+    public ResponseEntity<ApiResponse<List<Record>>> getFinishRecordsAfter(@RequestBody Date monthAgoDate) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "訂單資訊", recordService.getFinishRecordsAfter(monthAgoDate)));
     }
 }
