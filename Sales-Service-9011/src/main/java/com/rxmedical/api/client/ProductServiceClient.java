@@ -3,16 +3,13 @@ package com.rxmedical.api.client;
 import com.rxmedical.api.model.po.Product;
 import com.rxmedical.api.model.response.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "Product-Service-9006")
 public interface ProductServiceClient {
-    @PostMapping("/api/products/tools/findProduct")
-    public ApiResponse<Product> findProductById(@RequestBody Integer productId);
+    @GetMapping("/tool/products/{productId}")
+    public ApiResponse<Product> findProductById(@PathVariable Integer productId);
 
-    @PutMapping("/api/products/tools/saveProduct")
+    @PutMapping("/tool/products/save")
     public ApiResponse<Object> saveProduct(@RequestBody Product product);
 }

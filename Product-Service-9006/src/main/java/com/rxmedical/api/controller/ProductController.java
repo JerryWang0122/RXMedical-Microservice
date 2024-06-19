@@ -78,15 +78,4 @@ public class ProductController {
 		return ResponseEntity.ok(new ApiResponse<>(false, "商品更新失敗", null));
 	}
 
-	// --------------------- Tools ------------------------
-	@PostMapping("/tools/findProduct")
-	public ResponseEntity<ApiResponse<Product>> findProductById(@RequestBody Integer productId) {
-		return ResponseEntity.ok(new ApiResponse<>(true, "產品資訊", productService.findProductById(productId)));
-	}
-
-	@PutMapping("/tools/saveProduct")
-	public ResponseEntity<ApiResponse<Object>> saveProduct(@RequestBody Product product) {
-		productService.saveProduct(product);
-		return ResponseEntity.ok(new ApiResponse<>(true, "儲存成功", null));
-	}
 }

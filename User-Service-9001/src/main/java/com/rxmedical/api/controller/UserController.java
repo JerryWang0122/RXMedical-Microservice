@@ -96,8 +96,6 @@ public class UserController {
 			return ResponseEntity.ok(new ApiResponse<>(false, "使用者資訊更新失敗", null));
 		}
 		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", userInfo));
-		// DataIntegrityViolationException 問題 (先不要處理這個 Error)
-		// return ResponseEntity.ok(new ApiResponse<>(false, "信箱(帳號)重複", null));
 	}
 
 
@@ -160,10 +158,4 @@ public class UserController {
 		return ResponseEntity.ok(new ApiResponse<>(true, "運送人員資訊", transporterList));
 	}
 
-	// ---------------------- TOOLS ---------------------
-	@PostMapping("/tools/findUser")
-	public ResponseEntity<ApiResponse<User>> findUserById(@RequestBody Integer userId) {
-		User user = userService.findUserById(userId);
-		return ResponseEntity.ok(new ApiResponse<>(true, "使用者資訊", user));
-	}
 }

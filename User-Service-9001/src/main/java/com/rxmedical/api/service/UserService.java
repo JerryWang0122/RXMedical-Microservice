@@ -2,7 +2,9 @@ package com.rxmedical.api.service;
 
 import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.*;
+import com.rxmedical.api.model.po.History;
 import com.rxmedical.api.model.po.User;
+import com.rxmedical.api.model.po.Record;
 import com.rxmedical.api.repository.UserRepository;
 import com.rxmedical.api.util.EmailUtil;
 import com.rxmedical.api.util.KeyUtil;
