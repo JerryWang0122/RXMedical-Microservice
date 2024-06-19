@@ -1,6 +1,7 @@
 package com.rxmedical.api.service;
 
 import com.rxmedical.api.model.po.Record;
+import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,5 +30,9 @@ public class RecordService {
 
     public boolean isCodeExist(String code) {
         return recordRepository.existsByCode(code);
+    }
+
+    public List<Record> findByDemander(User demander) {
+        return recordRepository.findByDemander(demander);
     }
 }

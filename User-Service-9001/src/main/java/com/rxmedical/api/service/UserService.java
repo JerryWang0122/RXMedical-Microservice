@@ -157,75 +157,73 @@ public class UserService {
 	}
 
 	/**
-	 * [前台 - 搜索] 取得使用者個人帳戶資料
+	 * [前台 - 搜索] 取得使用者歷史申請資料
 	 * @param userId 使用者id
 	 * @return List<PurchaseHistoryDto> 使用者歷史申請資料
 	 */
-//	public List<PurchaseHistoryDto> getUserPurchaseHistoryList(Integer userId) {
-//		User user = findUserById(userId);
-//		if (user == null) {
-//			return null;
-//		}
-//
-//		List<Record> recordList = recordRepository.findByDemander(user);
-//		return recordList.stream()
-//				.map(record -> new PurchaseHistoryDto(
-//										record.getId(),
-//										record.getCode(),
-//										historyRepository.countByRecord(record),
-//										record.getChineseStatus()
-//										))
-//				.toList();
-//
-//	}
+	public List<PurchaseHistoryDto> getUserPurchaseHistoryList(Integer userId) {
+		User user = findUserById(userId);
+		if (user == null) {
+			return null;
+		}
+
+		List<Record> recordList = saleServiceClient.findRecordsByDemander(user).getData();
+		return recordList.stream()
+				.map(record -> new PurchaseHistoryDto(
+										record.getId(),
+										record.getCode(),
+										saleServiceClient.getApplyItemsCount(record).getData(),
+										record.getChineseStatus()
+										))
+				.toList();
+
+	}
 
 	/**
 	 * [前台] 取得訂單明細
 	 * @param recordDto 查詢訂單資料，誰查詢、查哪筆
 	 * @return (null 代表發生錯誤)，List為明細資料
 	 */
-//	public List<OrderDetailDto> getPurchaseDetails(RecordDto recordDto) {
-//		Optional<Record> optionalRecord = recordRepository.findById(recordDto.getRecordId());
-//		if (optionalRecord.isEmpty()){
-//			return null;
-//		}
-//
-//		// 查詢人應該要跟訂購人一樣
-//		Record record = optionalRecord.get();
-//		if (!recordDto.getUserId().equals(record.getDemander().getId())) {
-//			return null;
-//		}
-//		// 給資料
-//		List<History> recordDetails = historyRepository.findByRecord(record);
-//		return recordDetails.stream()
-//				.map(history -> new OrderDetailDto(history.getProduct().getName(), history.getQuantity(), null))
-//				.toList();
-//	}
+	public List<OrderDetailDto> getPurchaseDetails(RecordDto recordDto) {
+		Record record = saleServiceClient.findRecordById(recordDto.getRecordId()).getData();
+		if (record == null) {
+			return null;
+		}
+
+		// 查詢人應該要跟訂購人一樣
+		if (!recordDto.getUserId().equals(record.getDemander().getId())) {
+			return null;
+		}
+		// 給資料
+		List<History> recordDetails = saleServiceClient.getRecordDetails(record).getData();
+		return recordDetails.stream()
+				.map(history -> new OrderDetailDto(history.getProduct().getName(), history.getQuantity(), null))
+				.toList();
+	}
 
 	/**
 	 * [前台 - 更新] 使用者確定訂單完成
 	 * @param recordDto 操作者和要完成的訂單
 	 * @return String 錯誤信息
 	 */
-//	public String finishOrder(RecordDto recordDto) {
-//		Optional<Record> optionalRecord = recordRepository.findById(recordDto.getRecordId());
-//		if (optionalRecord.isEmpty()){
-//			return "找不到訂單";
-//		}
-//		Record record = optionalRecord.get();
-//		if (record.getStatus().equals("finish")) {
-//			return "訂單已經完成";
-//		}
-//		if (!record.getStatus().equals("transporting")) {
-//			return "錯誤訂單狀態";
-//		}
-//		if (!recordDto.getUserId().equals(record.getDemander().getId())) {
-//			return "錯誤操作人員";
-//		}
-//		record.setStatus("finish");
-//		recordRepository.save(record);
-//		return null;
-//	}
+	public String finishOrder(RecordDto recordDto) {
+		Record record = saleServiceClient.findRecordById(recordDto.getRecordId()).getData();
+		if (record == null) {
+			return "找不到訂單";
+		}
+		if (record.getStatus().equals("finish")) {
+			return "訂單已經完成";
+		}
+		if (!record.getStatus().equals("transporting")) {
+			return "錯誤訂單狀態";
+		}
+		if (!recordDto.getUserId().equals(record.getDemander().getId())) {
+			return "錯誤操作人員";
+		}
+		record.setStatus("finish");
+		saleServiceClient.saveRecord(record);
+		return null;
+	}
 
 	/**
 	 * [後台 - 查詢] 後台查詢所有使用者的資料

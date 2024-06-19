@@ -2,7 +2,6 @@ package com.rxmedical.api.controller;
 
 import com.rxmedical.api.client.JWTServiceClient;
 import com.rxmedical.api.model.dto.*;
-import com.rxmedical.api.model.po.User;
 import com.rxmedical.api.model.response.ApiResponse;
 import com.rxmedical.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -100,35 +99,35 @@ public class UserController {
 
 
 	// 取得個人衛材清單歷史
-//	@PostMapping("/user/purchase")
-//	public ResponseEntity<ApiResponse<List<PurchaseHistoryDto>>> getPurchaseHistoryList(CurrUserDto currUserDto) {
-//		List<PurchaseHistoryDto> userPurchaseHistoryList = userService.getUserPurchaseHistoryList(currUserDto.getUserId());
-//
-//		if (userPurchaseHistoryList == null) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "無此人員", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "歷史衛材申請資料", userPurchaseHistoryList));
-//	}
+	@PostMapping("/user/purchase")
+	public ResponseEntity<ApiResponse<List<PurchaseHistoryDto>>> getPurchaseHistoryList(@RequestBody CurrUserDto currUserDto) {
+		List<PurchaseHistoryDto> userPurchaseHistoryList = userService.getUserPurchaseHistoryList(currUserDto.getUserId());
+
+		if (userPurchaseHistoryList == null) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "無此人員", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "歷史衛材申請資料", userPurchaseHistoryList));
+	}
 
 	// 前台使用者，取得訂單明細
-//	@PostMapping("/user/purchase/detail")
-//	public ResponseEntity<ApiResponse<List<OrderDetailDto>>> getPurchaseDetails(@RequestBody RecordDto recordDto) {
-//		List<OrderDetailDto> purchaseDetails = userService.getPurchaseDetails(recordDto);
-//		if (purchaseDetails == null) {
-//			return ResponseEntity.ok(new ApiResponse<>(false, "存在問題", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(true, "訂單明細", purchaseDetails));
-//	}
+	@PostMapping("/user/purchase/detail")
+	public ResponseEntity<ApiResponse<List<OrderDetailDto>>> getPurchaseDetails(@RequestBody RecordDto recordDto) {
+		List<OrderDetailDto> purchaseDetails = userService.getPurchaseDetails(recordDto);
+		if (purchaseDetails == null) {
+			return ResponseEntity.ok(new ApiResponse<>(false, "存在問題", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(true, "訂單明細", purchaseDetails));
+	}
 
 	// 前台使用者完成訂單流程
-//	@PostMapping("/user/purchase/finish")
-//	public ResponseEntity<ApiResponse<String>> finishOrder(@RequestBody RecordDto recordDto) {
-//		String errorMsg = userService.finishOrder(recordDto);
-//		if (errorMsg == null) {
-//			return ResponseEntity.ok(new ApiResponse<>(true, "訂單完成", null));
-//		}
-//		return ResponseEntity.ok(new ApiResponse<>(false, errorMsg, null));
-//	}
+	@PostMapping("/user/purchase/finish")
+	public ResponseEntity<ApiResponse<String>> finishOrder(@RequestBody RecordDto recordDto) {
+		String errorMsg = userService.finishOrder(recordDto);
+		if (errorMsg == null) {
+			return ResponseEntity.ok(new ApiResponse<>(true, "訂單完成", null));
+		}
+		return ResponseEntity.ok(new ApiResponse<>(false, errorMsg, null));
+	}
 
 	// 後台查詢所有使用者
 	@PostMapping("/admin/member")

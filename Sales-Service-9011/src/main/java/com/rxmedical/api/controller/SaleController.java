@@ -179,10 +179,6 @@ public class SaleController {
 		return ResponseEntity.ok(new ApiResponse<>(true, "最新庫存", currStock));
 	}
 
-	// --------------------- Tools -----------------------
-//	@PostMapping("tools/findRecord")
-//	public ResponseEntity<ApiResponse<Record>> findRecord(@RequestBody Integer recordId) {
-//		return ResponseEntity.ok(new ApiResponse<>(true, "訂單資訊", saleService.findRecordById(recordId)));
-//	}
+
 
 }
