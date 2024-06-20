@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/users")
 public class UserController {
 
@@ -40,7 +40,7 @@ public class UserController {
 	@PostMapping("/user/login")
 	public ResponseEntity<ApiResponse<UserUsageDto>> postUserLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request) throws NoSuchAlgorithmException {
 		CSRFVerifyDTO dto = new CSRFVerifyDTO(userLoginDto.token(), request.getHeader("Authorization"));
-		if (!jwtServiceClient.checkCSRFToken(dto).getSuccess()) {
+		if (!jwtServiceClient.checkCSRFToken(dto).getState()) {
 			return ResponseEntity.ok(new ApiResponse<>(false, "CSRF驗證失敗", null));
 		}
 
@@ -62,7 +62,7 @@ public class UserController {
 	@PostMapping("/user/register")
 	public ResponseEntity<ApiResponse<Object>> registerUserInfo(@RequestBody UserRegisterDto userRegisterDto, HttpServletRequest request) throws NoSuchAlgorithmException {
 		CSRFVerifyDTO dto = new CSRFVerifyDTO(userRegisterDto.token(), request.getHeader("Authorization"));
-		if (!jwtServiceClient.checkCSRFToken(dto).getSuccess()) {
+		if (!jwtServiceClient.checkCSRFToken(dto).getState()) {
 			return ResponseEntity.ok(new ApiResponse<>(false, "CSRF驗證失敗", null));
 		}
 		Boolean registerSuccess = userService.registerUserInfo(userRegisterDto);
@@ -75,7 +75,7 @@ public class UserController {
 	
 	// 取得個人資訊
 	@PostMapping("/user/profile")
-	public ResponseEntity<ApiResponse<UserInfoDto>> getUserInfo(@RequestBody CurrUserDto currUserDto) {
+	public ResponseEntity<ApiResponse<UserInfoDto>> getUserInfo (CurrUserDto currUserDto) {
 
 		UserInfoDto info = userService.getUserInfo(currUserDto.getUserId());
 
@@ -100,7 +100,7 @@ public class UserController {
 
 	// 取得個人衛材清單歷史
 	@PostMapping("/user/purchase")
-	public ResponseEntity<ApiResponse<List<PurchaseHistoryDto>>> getPurchaseHistoryList(@RequestBody CurrUserDto currUserDto) {
+	public ResponseEntity<ApiResponse<List<PurchaseHistoryDto>>> getPurchaseHistoryList(CurrUserDto currUserDto) {
 		List<PurchaseHistoryDto> userPurchaseHistoryList = userService.getUserPurchaseHistoryList(currUserDto.getUserId());
 
 		if (userPurchaseHistoryList == null) {

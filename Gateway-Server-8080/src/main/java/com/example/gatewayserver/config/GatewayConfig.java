@@ -18,4 +18,5 @@ public class GatewayConfig {
                 .route("Analyze-Service-8084", r -> r.path("/api/analyze/**").uri("lb://Analyze-Service-8084"))
                 .build();
     }
+
 }
