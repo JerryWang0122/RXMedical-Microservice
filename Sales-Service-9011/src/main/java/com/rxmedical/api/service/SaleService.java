@@ -427,7 +427,7 @@ public class SaleService {
      * @return Integer 最新庫存，null表示找不到貨，-[number]表示庫存不足 -> number 表示目前庫存量
      */
     // TODO: 這邊儲存有問題，需補償@Transactional
-    public synchronized Integer destroyMaterial(SaleMaterialDto destroyDto) {
+    public synchronized Double destroyMaterial(SaleMaterialDto destroyDto) {
         Product product = productServiceClient.findProductById(destroyDto.getMaterialId()).getData();
         // 因為有過aop了，所以直接拿
         User user = userServiceClient.findUserById(destroyDto.getUserId()).getData();
@@ -439,7 +439,7 @@ public class SaleService {
 
         // 檢查存貨量
         if (product.getStock() < destroyDto.getQuantity()) {
-            return -product.getStock();
+            return -(product.getStock() + 0.001);
         }
 
         History history = new History();
@@ -453,7 +453,7 @@ public class SaleService {
         // 更新庫存
         product.setStock(product.getStock() - destroyDto.getQuantity());
         productServiceClient.saveProduct(product);
-        return product.getStock();
+        return product.getStock() + 0.001;
     }
 
 

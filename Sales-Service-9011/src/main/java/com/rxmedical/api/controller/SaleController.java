@@ -168,13 +168,13 @@ public class SaleController {
 	// 後台使用者，銷毀貨
 	@PostMapping("/admin/destroy")
 	public ResponseEntity<ApiResponse<Integer>> destroyMaterial(@RequestBody SaleMaterialDto destroyDto) {
-		Integer currStock = saleService.destroyMaterial(destroyDto);
+		Double currStock = saleService.destroyMaterial(destroyDto);
 		if (currStock == null) {
 			return ResponseEntity.ok(new ApiResponse<>(false, "無此商品", null));
 		} else if (currStock < 0) {
-			return ResponseEntity.ok(new ApiResponse<>(false, "庫存不足", -currStock));
+			return ResponseEntity.ok(new ApiResponse<>(false, "庫存不足", (int) Math.floor(-currStock)));
 		}
-		return ResponseEntity.ok(new ApiResponse<>(true, "最新庫存", currStock));
+		return ResponseEntity.ok(new ApiResponse<>(true, "最新庫存", (int) Math.floor(currStock)));
 	}
 
 }
