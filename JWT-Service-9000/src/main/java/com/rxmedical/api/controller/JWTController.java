@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin
+//@CrossOrigin
 @RequestMapping("/api/jwt")
 public class JWTController {
 
